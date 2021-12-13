@@ -7,7 +7,7 @@ const app = express();
 const db = require('./config/db/connectmongose.js');
 db.connect();
 var corsOptions = {
-    origin: 'https://mern-dieu-fe.herokuapp.com',
+    origin: 'https://main.d39focoq4y7608.amplifyapp.com',
     optionsSuccessStatus: 200 
   }
 app.use(cors(corsOptions))
