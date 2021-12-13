@@ -10,7 +10,7 @@ var corsOptions = {
     origin: 'https://main.d39focoq4y7608.amplifyapp.com',
    optionsSuccessStatus: 200 
   }
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json()); 
