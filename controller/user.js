@@ -47,7 +47,8 @@ const newuser=(req,res)=>{
                 purcharsedbook: [],
                 bookforsale: [],
                 status: "online",
-                price : 0
+                price : 0,
+                refreshToken:null
             }
             let adduser=  new modeluser(datareq);
             adduser.save((err)=>{
