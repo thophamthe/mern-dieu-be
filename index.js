@@ -7,10 +7,10 @@ const app = express();
 const db = require('./config/db/connectmongose.js');
 db.connect();
 var corsOptions = {
-    origin: 'https://mern-dieu-fe.herokuapp.com',
-    optionsSuccessStatus: 200 
+    origin: ['https://main.dhgaddof2fot4.amplifyapp.com/','https://mern-dieu-fe-production.up.railway.app'],
+   optionsSuccessStatus: 200 
   }
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json()); 
@@ -19,15 +19,5 @@ const PORT = process.env.PORT||4000;
 const router= require('./router/index');
 app.use('/api',router);
 
-var os = require("os")
-app.get("/test",(req,res)=>{
-  
-  var ipt = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress ||req.connection.socket.remoteAddress;
-  var ip =ipt.split(':').pop();
-  console.log(ip)
-  console.log(	os.hostname())
-  console.log(	os.type()+ os.arch())
-
-  res.end()
-})
+app.listen(PORT, () => console.log('Server started on port: '+PORT));
 app.listen(PORT, () => console.log('Server started on port: '+PORT));
