@@ -1,13 +1,10 @@
-const modeluser= require("./model/user")
 
+let arr = new Array(2);
 
-const test=()=>{
-    modeluser.updateMany ({},
-        {
-        set: {refreshToken:null}
-        },
-        { upsert: false, multi:true }
-    
-    )
-}
-test()
+arr.push(1)
+arr.push(2)
+arr.push(3)
+arr.push(4)
+arr.pop()
+console.log(arr)
+console.log(arr.length)

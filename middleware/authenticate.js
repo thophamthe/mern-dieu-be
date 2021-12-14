@@ -23,8 +23,10 @@ const checklogin=async (req,res,next)=>{
 const authenticatetoken = (req,res,next)=>{
     try {
     const token = req.headers.token;
+    const refreshToken = req.headers.refreshToken;
+
     if(!token)return res.status(400).json({msg:"chưa có jwt"});
-    jwt.verify(token,process.env.TOKEN_SECRET,(err,user)=>{
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,user)=>{
         if(err) return res.status(400).json({msg:"sai jwt"})
         else req.user=user;
         next();

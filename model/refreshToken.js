@@ -8,4 +8,7 @@ const schemauser = new Schema({
   operatingSystem:String,
   datetime:String
 });
-module.exports =mongoose.model('token', schemauser);
+module.exports =mongoose.model('tokenRefresh', schemauser);
+// quản lý các phiên đã làm việc
+// lưu lại lịch sử truy cập của các lần login
+// thực ra có thể lưu lại các hành động truy cập của các lần truy cập

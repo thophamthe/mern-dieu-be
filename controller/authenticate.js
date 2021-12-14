@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const modeluser = require('../model/user');
 const modelrefreshToken= require('../model/refreshToken')
+const modelcurrentToken = require('../model/tokenCurrent')
 const dotenv = require('dotenv').config();
 var os = require("os")
 const date = require('date-and-time');
@@ -15,11 +16,14 @@ const login=async (req,res)=>{
             refreshtoken: refreshToken,
             user:docuser
         }
+
+        // vì mỗi lần login thì sẽ sinh ra 1 refresh token mới . lưu lại các phiên
+        // token này sau logut thì k có quyền đòi access token nữa
         let ipt = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress ||req.connection.socket.remoteAddress;
         let ip =ipt.split(':').pop();
         const now = new Date();
         let datetime=date.format(now, 'YYYY/MM/DD HH:mm:ss').toString();
-        let datareq = {
+        let datareqAdd = {
             username: req.body.username,
             datetime:datetime,
             refreshToken:refreshToken,
@@ -27,7 +31,7 @@ const login=async (req,res)=>{
             deviceName:os.hostname(),
             operatingSystem:os.type()+ os.arch()
         }
-        let refresh=  new modelrefreshToken(datareq);
+        let refresh=  new modelrefreshToken(datareqAdd);
         refresh.save((err)=>{
             if (err) {
                 console.log(err)
@@ -37,7 +41,15 @@ const login=async (req,res)=>{
                
             }
         })
- 
+
+            //thêm vao token hiện hoạt động
+            // chức năng đăng xuất tất cả chỉ cần xóa hết token có tên là ... 
+        const dataAddCurrenToken ={
+            username: req.body.username,
+            refreshToken: refreshToken
+        }
+        let resultAddtokenCurrent= new modelcurrentToken(dataAddCurrenToken)
+        resultAddtokenCurrent.save()
        res.json(datares)
        res.end()
     })
@@ -48,12 +60,54 @@ const loginWtoken=(req,res)=>{
        res.end()
     })
 }
-const logout=(req,res)=>{
-    res.clearCookie('token');
-    res.end();
+
+const newtoken=(req,res)=>{
+    let refreshTokenreq = req.headers.refreshtoken;
+  
+    modelcurrentToken.findOneAndDelete({refreshToken :refreshTokenreq},(err,doc)=>{
+        if(err){
+            res.end()
+
+        }else{
+           
+            if(doc){
+                let newrefreshtoken =generateRefreshJWT({username: req.user.username})
+                let datatokenres={
+                    token:generateAccessJWT({username: req.user.username}),
+                    refreshtoken: newrefreshtoken
+                }
+                const dataAddCurrenToken ={
+                 username: req.user.username,
+                 refreshToken: newrefreshtoken
+             }
+             let resultAddtokenCurrent= new modelcurrentToken(dataAddCurrenToken)
+             resultAddtokenCurrent.save()
+                res.json(datatokenres)
+                 res.end()
+            }else{
+                res.end()
+            }
+           
+        }
+    })
 }
+const logout=(req,res)=>{
+
+    let refreshTokenreq = req.headers.refreshtoken;
+    modelcurrentToken.findOneAndDelete({refreshToken :refreshTokenreq},(err,doc)=>{
+        if(err){
+            res.end()
+
+        }else{
+           
+            res.end()
+        }
+    })
+}
+
+
 const generateAccessJWT = (payload) => {
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"10m"});
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"30m"});
 }
 const generateRefreshJWT = (payload) => {
     return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
@@ -61,5 +115,6 @@ const generateRefreshJWT = (payload) => {
 module.exports={
     login,
     logout,
-    loginWtoken
+    loginWtoken,
+    newtoken
 }
