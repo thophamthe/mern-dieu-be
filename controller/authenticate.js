@@ -63,7 +63,6 @@ const loginWtoken=(req,res)=>{
 
 const newtoken=(req,res)=>{
     let refreshTokenreq = req.headers.refreshtoken;
-  
     modelcurrentToken.findOneAndDelete({refreshToken :refreshTokenreq},(err,doc)=>{
         if(err){
             res.end()
