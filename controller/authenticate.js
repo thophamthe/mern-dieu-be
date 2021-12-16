@@ -107,7 +107,7 @@ const logout=(req,res)=>{
 
 
 const generateAccessJWT = (payload) => {
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"30m"});
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"3m"});
 }
 const generateRefreshJWT = (payload) => {
     return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);

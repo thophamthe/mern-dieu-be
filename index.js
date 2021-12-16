@@ -8,7 +8,7 @@ const app = express();
 const db = require('./config/db/connectmongose.js');
 db.connect();
 var corsOptions = {
-    origin: ['https://main.dhgaddof2fot4.amplifyapp.com/','https://mern-dieu-fe-production.up.railway.app'],
+    origin: ['https://main.dhgaddof2fot4.amplifyapp.com','https://mern-dieu-fe-production.up.railway.app'],
    optionsSuccessStatus: 200 
   }
 app.use(cors())
