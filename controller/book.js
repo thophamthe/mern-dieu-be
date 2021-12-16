@@ -174,6 +174,16 @@ const buybook=(req,res)=>{
                         if(err) res.json({msg:"lỗi mua sách"})
                         else res.json({msg: "mua sách thành công", result: true})
                     })
+                modeluser.findOne({bookforsale: {$elemMatch: "thothe1625394809893"}},"username price",(err,doc)=>{
+                    modeluser.updateOne({
+                        username: doc.username
+                    },{
+                        $set:{ price:doc.price+docbook.pricebook }
+                    },(err)=>{
+                        if(err) res.json({msg:"lỗi mua sách"})
+                        else res.json({msg: "mua sách thành công", result: true})
+                    })
+                })
                 }else{
                     res.json({msg:"không đủ tiền mua sách",result: false})
                 }
