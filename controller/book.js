@@ -5,13 +5,14 @@ const modelbook= require('../model/books');
 const modeluser= require('../model/user')
 const {usecollection} = require('../model/createcollection');
 const {createbook}= require('../model/createcollection');
+const { deleteFileS3 } = require('../multer/deleteFileS3');
 
 const writebook=(req,res)=>{
  
     let datareq= {
         idbook:req.body.idbook,
         namebook:req.body.namebook,
-        urlimg: req.file.path.slice(7),
+        urlimg: "book/"+req.file.originalname,
         pricebook:Number(req.body.pricebook),
         status:false,
         chapternumber:0,
@@ -56,35 +57,38 @@ const writebook=(req,res)=>{
 }
 
 const updatebook= async (req,res)=>{
-        modelbook.findOne({idbook: req.params.idbook}, function (err, docs){
-            if(docs.urlimg!=null){
-                let link = "upload/" + docs.urlimg;
-                    fs.remove(link)
-                    .then(() => {
-                        
-                    })
-                    .catch(err => {
-                    console.error(err)
-                    })
+        modelbook.findOne({idbook: req.params.idbook}, async function (err, docs){
+            if(docs){
+                try{
+                    let [path,key] =docs.urlimg.split("/") // do lỗi path có chứa  \
+                    
+                    await deleteFileS3(path,key)
+                }
+                catch(err){
+    
+                }
+                let datareq={
+                    namebook: req.body.namebook,
+                    urlimg: "book/"+req.file.originalname,
+                    pricebook:req.body.pricebook,
+                    chaptertotal:req.body.chaptertotal,
+                    description:req.body.description,
+                }
+               
+                modelbook.updateOne({
+                    idbook: req.params.idbook
+                }, {
+                    $set: datareq
+                }, (err) => {
+                    if (err) res.send(err);
+                    else res.end();
+                })
             }else{
                 res.json({msg: "sách không tồn tại"})
             }
         })
-        let datareq={
-            namebook: req.body.namebook,
-            urlimg: req.file.path.slice(7),
-            pricebook:req.body.pricebook,
-            chaptertotal:req.body.chaptertotal,
-            description:req.body.description,
-        }
-        modelbook.updateOne({
-            idbook: req.params.idbook
-        }, {
-            $set: datareq
-        }, (err) => {
-            if (err) res.send(err);
-            else res.end();
-        })
+        
+    
 }
 
 const getdataonebook=(req,res)=>{
@@ -174,14 +178,15 @@ const buybook=(req,res)=>{
                         if(err) res.json({msg:"lỗi mua sách"})
                         else res.json({msg: "mua sách thành công", result: true})
                     })
-                modeluser.findOne({bookforsale: {$elemMatch: "thothe1625394809893"}},"username price",(err,doc)=>{
+            
+                modeluser.findOne({bookforsale: req.params.idbook},"username price",(err,doc)=>{
+                 
                     modeluser.updateOne({
                         username: doc.username
                     },{
                         $set:{ price:doc.price+docbook.pricebook }
                     },(err)=>{
-                        if(err) res.json({msg:"lỗi mua sách"})
-                        else res.json({msg: "mua sách thành công", result: true})
+                        if(err) console.log(err)
                     })
                 })
                 }else{
@@ -219,6 +224,10 @@ const getNamebookForId=(req,res)=>{
         }
     })
 }
+const testupdate = async(req,res)=>{
+    await deleteFileS3(null, '1.jpg')
+    res.end()
+}
 module.exports={
     writebook,
     getdataonebook,
@@ -227,5 +236,6 @@ module.exports={
     buybook,
     CheckUserRequestReadbook,
     getlistchapter,
-    getNamebookForId
+    getNamebookForId,
+    testupdate
 }

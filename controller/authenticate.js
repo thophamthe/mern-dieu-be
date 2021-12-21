@@ -63,6 +63,7 @@ const loginWtoken=(req,res)=>{
 
 const newtoken=(req,res)=>{
     let refreshTokenreq = req.headers.refreshtoken;
+
     modelcurrentToken.findOneAndDelete({refreshToken :refreshTokenreq},(err,doc)=>{
         if(err){
             res.end()
@@ -70,13 +71,13 @@ const newtoken=(req,res)=>{
         }else{
            
             if(doc){
-                let newrefreshtoken =generateRefreshJWT({username: req.user.username})
+                let newrefreshtoken =generateRefreshJWT({username: doc.username})
                 let datatokenres={
-                    token:generateAccessJWT({username: req.user.username}),
+                    token:generateAccessJWT({username:doc.username}),
                     refreshtoken: newrefreshtoken
                 }
                 const dataAddCurrenToken ={
-                 username: req.user.username,
+                 username: doc.username,
                  refreshToken: newrefreshtoken
              }
              let resultAddtokenCurrent= new modelcurrentToken(dataAddCurrenToken)
@@ -106,7 +107,7 @@ const logout=(req,res)=>{
 
 
 const generateAccessJWT = (payload) => {
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"3m"});
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{ expiresIn:"2h"});
 }
 const generateRefreshJWT = (payload) => {
     return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);

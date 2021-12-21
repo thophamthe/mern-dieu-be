@@ -3,6 +3,7 @@ const modelbook= require('../model/books');
 const dotenv = require('dotenv').config();
 const fs = require('fs-extra');
 const bcrypt = require('bcrypt');
+const { deleteFileS3 } = require('../multer/deleteFileS3');
 const getdatauser= (req,res)=>{
     modeluser.findOne({username:req.user.username},async function (err, docuser) {
         if(docuser){
@@ -40,7 +41,7 @@ const newuser=(req,res)=>{
                 username: req.body.username,
                 password: bcrypt.hashSync(req.body.password,parseInt(process.env.SALTROUNDS)),
                 fullname: req.body.fullname,
-                urlimg:req.file.path.slice(7),
+                urlimg:"avatar/"+req.file.originalname,
                 phonenumber: req.body.phonenumber,
                 gmail: req.body.gmail,
                 from : req.body.from,
@@ -67,19 +68,12 @@ const newuser=(req,res)=>{
     });
 }
 const updateuser=(req,res)=>{
-    modeluser.findOne({username: req.user.username}, function (err, docs) {
+    modeluser.findOne({username: req.user.username}, async function (err, docs) {
         if (docs) {
             try{
-                if(docs.urlimg!=null){
-                    let link = "upload/" + docs.urlimg;
-                    fs.remove(link)
-                    .then(() => {
-                        
-                    })
-                    .catch(err => {
-                    console.error(err)
-                    })
-                }   
+                let [path,key] =docs.urlimg.split("/") // do lỗi path có chứa  \
+                
+                await deleteFileS3(path,key)
             }
             catch(err){
 
@@ -87,19 +81,21 @@ const updateuser=(req,res)=>{
             let datareq = {
 
                 fullname: req.body.fullname,
-                urlimg:req.file.path.slice(7),
+                urlimg:"avatar/"+req.file.originalname,
                 phonenumber: req.body.phonenumber,
                 gmail: req.body.gmail,
-                from : req.body.from,
+                from : req.body.from
             }
-            console.log(req.file.path.slice(7))
-            modeluser.updateOne({
+            modeluser.updateOne({   
                 username: req.user.username
             }, {
                 $set: datareq
             }, (err) => {
                 if (err)  res.end();
-                else res.end();
+                else {
+                    res.json({result:true}) 
+                    res.end();
+                } 
             })
         } else res.json({
            msg: "Xin đừng hack của em"

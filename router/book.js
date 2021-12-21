@@ -15,4 +15,5 @@ router.post('/updatebook/:idbook',middlewareauth.authenticatetoken,validate.chec
 router.get('/readbook/:idbook',middlewareauth.authenticatetoken,validate.checkreadbook,chapter.readchapter);
 router.get('/listchapter/:idbook',middlewareauth.authenticatetoken,validate.checkreadbook,book.getlistchapter)
 router.get('/getNameforId/:idbook',book.getNamebookForId)
+router.post('/test', upload.single("urlimg"),book.testupdate);
 module.exports= router;

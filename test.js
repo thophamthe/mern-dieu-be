@@ -1,5 +1,3 @@
-const modeluser= require('./model/user')
+const { deleteFileS3 } = require('./multer/deleteFileS3');
 
-modeluser.findOne({bookforsale: {$elemMatch: "thothe1625394809893"}},"username",(err,doc)=>{
-    console.log(doc)
-})
+deleteFileS3("avatar","tho12341640026117320.jpg" )

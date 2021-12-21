@@ -1,10 +1,17 @@
 const multer = require('multer');
-const storage = multer.diskStorage({
-    destination: (req,file,cb)=>{
-        cb(null,"upload/book")
+var multerS3 = require('multer-s3')
+const {s3}= require('../config/storeS3/S3')
+const bucketname =  process.env.AWS_BUCKET_NAME
+
+const storage = multerS3({
+    s3: s3,
+    bucket: bucketname+"/book",
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
     },
-    filename : (req,file,cb)=>{  
-        cb(null,file.originalname )
+    key: function (req, file, cb) {
+      cb(null, file.originalname)
     }
 })
 const upload = multer(
