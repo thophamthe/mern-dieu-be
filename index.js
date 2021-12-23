@@ -21,6 +21,10 @@ const router= require('./router/index');
 
 app.use(blockip,countIp)
 app.use('/api',router);
+app.use("/test",(req,res)=>{
+  console.log("success")
+  res.end()
+})
 
 app.listen(PORT, () => console.log('Server started on port: '+PORT));
 
